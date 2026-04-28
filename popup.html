@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 640px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 18px;
+      background: #ffffff;
+      color: #1f2937;
+    }
+
+    /* ── Login screen ────────────────────────────────────────────────────────── */
+
+    #login-screen { display: flex; flex-direction: column; }
+
+    #login-screen header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    #login-screen header h1 { font-size: 21px; font-weight: 600; color: #7c3aed; }
+    #login-screen header p  { font-size: 16px; color: #9ca3af; margin-top: 3px; }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px 22px;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      outline: none;
+      color: #1f2937;
+      background: #fff;
+    }
+    .login-form input:focus { border-color: #7c3aed; }
+
+    #btn-login {
+      padding: 11px 14px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #btn-login:hover { background: #6d28d9; }
+    #btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-error {
+      font-size: 15px;
+      color: #dc2626;
+      min-height: 20px;
+    }
+
+    /* ── Main UI ─────────────────────────────────────────────────────────────── */
+
+    #main-ui { display: none; flex-direction: column; }
+
+    header {
+      flex-shrink: 0;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    header h1 { font-size: 21px; font-weight: 600; color: #7c3aed; letter-spacing: 0.3px; }
+    header p  { font-size: 16px; color: #9ca3af; margin-top: 3px; }
+
+    .actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 10px;
+      padding: 14px 22px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #btn-summarize { background: #7c3aed; color: #fff; }
+    #btn-summarize:hover:not(:disabled) { background: #6d28d9; }
+
+    #btn-notes { background: #0f766e; color: #fff; }
+    #btn-notes:hover:not(:disabled) { background: #0d6b62; }
+
+    .char-hint {
+      flex-shrink: 0;
+      padding: 6px 22px 0;
+      font-size: 15px;
+      color: #9ca3af;
+    }
+
+    .output {
+      overflow-y: auto;
+      max-height: 500px;
+      padding: 16px 22px;
+    }
+
+    .status {
+      font-size: 18px;
+      color: #6b7280;
+      display: none;
+    }
+    .status.visible { display: block; }
+
+    .error {
+      font-size: 18px;
+      color: #dc2626;
+      display: none;
+      padding: 8px 0;
+    }
+    .error.visible { display: block; }
+
+    .result-block { display: none; }
+    .result-block.visible { display: block; }
+
+    .result-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .summary-text {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #374151;
+    }
+
+    .notes-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .notes-list li {
+      display: flex;
+      gap: 10px;
+      font-size: 18px;
+      line-height: 1.65;
+      color: #374151;
+    }
+    .notes-list li::before {
+      content: "▸";
+      color: #0f766e;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .copy-btn {
+      flex: 0;
+      margin-top: 12px;
+      padding: 6px 12px;
+      font-size: 15px;
+      background: #f9fafb;
+      color: #6b7280;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #e5e7eb;
+    }
+    .copy-btn:hover { background: #f3f4f6; }
+
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid #e5e7eb;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Login screen -->
+  <div id="login-screen">
+    <header>
+      <h1>Research Assistant</h1>
+      <p>Sign in to continue</p>
+    </header>
+    <div class="login-form">
+      <input type="text"     id="input-username" placeholder="Username" autocomplete="username" />
+      <input type="password" id="input-password" placeholder="Password" autocomplete="current-password" />
+      <button type="button"  id="btn-login">Sign in</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- Main UI -->
+  <div id="main-ui">
+    <header>
+      <h1>Research Assistant</h1>
+      <p>Extract insights from the current page</p>
+    </header>
+
+    <div class="actions">
+      <button type="button" id="btn-summarize">Summarize</button>
+      <button type="button" id="btn-notes">Generate Notes</button>
+    </div>
+
+    <div class="char-hint" id="char-hint"></div>
+
+    <div class="output">
+      <div class="status" id="status"></div>
+      <div class="error"  id="error"></div>
+
+      <div class="result-block" id="summary-block">
+        <div class="result-label">Summary</div>
+        <p class="summary-text" id="summary-text"></p>
+        <button type="button" class="copy-btn" id="copy-summary">Copy</button>
+      </div>
+
+      <div class="result-block" id="notes-block">
+        <div class="result-label">Notes</div>
+        <ul class="notes-list" id="notes-list"></ul>
+        <button type="button" class="copy-btn" id="copy-notes">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
