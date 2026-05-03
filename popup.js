@@ -1,5 +1,7 @@
-const { api_base: API_BASE } = await fetch(chrome.runtime.getURL("config.json")).then(r => r.json());
-const MAX_CHARS = 8000;
+const { api_base_local, api_base_prod } = await fetch(chrome.runtime.getURL("config.json")).then(r => r.json());
+const API_BASE = await fetch(`${api_base_local}/health/`, { signal: AbortSignal.timeout(1000) })
+  .then(r => r.ok ? api_base_local : api_base_prod)
+  .catch(() => api_base_prod);
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 
@@ -14,7 +16,6 @@ const btnSummarize = document.getElementById("btn-summarize");
 const btnNotes     = document.getElementById("btn-notes");
 const statusEl     = document.getElementById("status");
 const errorEl      = document.getElementById("error");
-const charHint     = document.getElementById("char-hint");
 
 const summaryBlock = document.getElementById("summary-block");
 const summaryText  = document.getElementById("summary-text");
@@ -125,14 +126,13 @@ async function extractText() {
 
 async function callApi(endpoint, text) {
   const { authToken } = await chrome.storage.local.get("authToken");
-  const truncated = text.slice(0, MAX_CHARS);
   const res = await fetch(`${API_BASE}/${endpoint}/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Basic ${authToken}`,
     },
-    body: JSON.stringify({ text: truncated }),
+    body: JSON.stringify({ text }),
   });
   if (res.status === 401) {
     chrome.storage.local.remove("authToken");
@@ -154,7 +154,7 @@ btnSummarize.addEventListener("click", async () => {
     const text = await extractText();
     if (!text) { setError("No text found on this page."); return; }
 
-    charHint.textContent = `${Math.min(text.length, MAX_CHARS).toLocaleString()} / ${MAX_CHARS.toLocaleString()} chars sent`;
+
     setLoading("Summarizing…");
     const data = await callApi("summary", text);
 
@@ -172,7 +172,7 @@ btnNotes.addEventListener("click", async () => {
     const text = await extractText();
     if (!text) { setError("No text found on this page."); return; }
 
-    charHint.textContent = `${Math.min(text.length, MAX_CHARS).toLocaleString()} / ${MAX_CHARS.toLocaleString()} chars sent`;
+
     setLoading("Generating notes…");
     const data = await callApi("notes", text);
 

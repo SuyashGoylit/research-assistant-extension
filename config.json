@@ -1,3 +1,4 @@
 {
-  "api_base": "http://localhost:8000/api"
+  "api_base_local": "http://localhost:8000/api",
+  "api_base_prod": "https://research-assistant-5bqp.onrender.com/api"
 }
