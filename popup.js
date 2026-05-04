@@ -14,6 +14,7 @@ const loginError    = document.getElementById("login-error");
 
 const btnSummarize = document.getElementById("btn-summarize");
 const btnNotes     = document.getElementById("btn-notes");
+const btnJargon    = document.getElementById("btn-jargon");
 const statusEl     = document.getElementById("status");
 const errorEl      = document.getElementById("error");
 
@@ -24,6 +25,10 @@ const copySummary  = document.getElementById("copy-summary");
 const notesBlock   = document.getElementById("notes-block");
 const notesList    = document.getElementById("notes-list");
 const copyNotes    = document.getElementById("copy-notes");
+
+const jargonBlock  = document.getElementById("jargon-block");
+const jargonList   = document.getElementById("jargon-list");
+const copyJargon   = document.getElementById("copy-jargon");
 
 // ── Auth helpers ──────────────────────────────────────────────────────────────
 
@@ -89,8 +94,10 @@ function setLoading(msg) {
   errorEl.classList.remove("visible");
   summaryBlock.classList.remove("visible");
   notesBlock.classList.remove("visible");
+  jargonBlock.classList.remove("visible");
   btnSummarize.disabled = true;
   btnNotes.disabled = true;
+  btnJargon.disabled = true;
 }
 
 function setError(msg) {
@@ -99,12 +106,14 @@ function setError(msg) {
   statusEl.classList.remove("visible");
   btnSummarize.disabled = false;
   btnNotes.disabled = false;
+  btnJargon.disabled = false;
 }
 
 function clearLoading() {
   statusEl.classList.remove("visible");
   btnSummarize.disabled = false;
   btnNotes.disabled = false;
+  btnJargon.disabled = false;
 }
 
 // ── Text extraction ───────────────────────────────────────────────────────────
@@ -189,6 +198,37 @@ btnNotes.addEventListener("click", async () => {
   }
 });
 
+btnJargon.addEventListener("click", async () => {
+  try {
+    setLoading("Extracting page text…");
+    const text = await extractText();
+    if (!text) { setError("No text found on this page."); return; }
+
+    setLoading("Identifying jargon…");
+    const data = await callApi("jargon", text);
+
+    jargonList.innerHTML = "";
+    const jargonItems = Array.isArray(data) ? data : (data.jargon || data.terms || data.results || []);
+    jargonItems.forEach(({ term, definition }) => {
+      const li = document.createElement("li");
+      li.className = "jargon-item";
+      const termEl = document.createElement("span");
+      termEl.className = "jargon-term";
+      termEl.textContent = term;
+      const defEl = document.createElement("span");
+      defEl.className = "jargon-def";
+      defEl.textContent = definition;
+      li.appendChild(termEl);
+      li.appendChild(defEl);
+      jargonList.appendChild(li);
+    });
+    jargonBlock.classList.add("visible");
+    clearLoading();
+  } catch (err) {
+    if (err.message !== "Session expired.") setError(err.message);
+  }
+});
+
 // ── Copy buttons ──────────────────────────────────────────────────────────────
 
 copySummary.addEventListener("click", () => {
@@ -205,5 +245,15 @@ copyNotes.addEventListener("click", () => {
   navigator.clipboard.writeText(text).then(() => {
     copyNotes.textContent = "Copied!";
     setTimeout(() => (copyNotes.textContent = "Copy"), 1500);
+  });
+});
+
+copyJargon.addEventListener("click", () => {
+  const text = [...jargonList.querySelectorAll(".jargon-item")]
+    .map((item) => `${item.querySelector(".jargon-term").textContent}: ${item.querySelector(".jargon-def").textContent}`)
+    .join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    copyJargon.textContent = "Copied!";
+    setTimeout(() => (copyJargon.textContent = "Copy"), 1500);
   });
 });

@@ -106,6 +106,9 @@
     #btn-notes { background: #0f766e; color: #fff; }
     #btn-notes:hover:not(:disabled) { background: #0d6b62; }
 
+    #btn-jargon { background: #b45309; color: #fff; }
+    #btn-jargon:hover:not(:disabled) { background: #92400e; }
+
     .char-hint {
       flex-shrink: 0;
       padding: 6px 22px 0;
@@ -172,6 +175,28 @@
       margin-top: 2px;
     }
 
+    .jargon-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .jargon-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .jargon-term {
+      font-size: 16px;
+      font-weight: 600;
+      color: #92400e;
+    }
+    .jargon-def {
+      font-size: 18px;
+      line-height: 1.65;
+      color: #374151;
+    }
+
     .copy-btn {
       flex: 0;
       margin-top: 12px;
@@ -225,6 +250,7 @@
     <div class="actions">
       <button type="button" id="btn-summarize">Summarize</button>
       <button type="button" id="btn-notes">Generate Notes</button>
+      <button type="button" id="btn-jargon">Jargon</button>
     </div>
 
     <div class="char-hint" id="char-hint"></div>
@@ -243,6 +269,12 @@
         <div class="result-label">Notes</div>
         <ul class="notes-list" id="notes-list"></ul>
         <button type="button" class="copy-btn" id="copy-notes">Copy</button>
+      </div>
+
+      <div class="result-block" id="jargon-block">
+        <div class="result-label">Jargon</div>
+        <ul class="jargon-list" id="jargon-list"></ul>
+        <button type="button" class="copy-btn" id="copy-jargon">Copy</button>
       </div>
     </div>
   </div>
