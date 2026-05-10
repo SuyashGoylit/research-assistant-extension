@@ -3,8 +3,8 @@
   "name": "Research Assistant",
   "version": "1.0",
   "description": "Summarize and extract notes from any webpage.",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["http://localhost:8000/*"],
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["http://localhost:8000/*", "https://research-assistant-5bqp.onrender.com/*"],
   "web_accessible_resources": [{ "resources": ["config.json"], "matches": ["<all_urls>"] }],
   "action": {
     "default_popup": "popup.html",
